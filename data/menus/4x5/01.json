@@ -1,0 +1,33 @@
+{
+  "title": "Monitors",
+  "rows": [
+    [
+      {"label": "Monitor 1", "img": "/icons/monitor1.bin", "keypress": "", "action": "none"},
+      {"label": "Monitor 2", "img": "/icons/monitor2.bin", "keypress": "", "action": "none"},
+      {"label": "Monitor 3", "img": "/icons/monitor3.bin", "keypress": "", "action": "none"},
+      {"label": "LV_SYMBOL_MUTE", "keypress": "KEY_MEDIA_MUTE", "action": "keyboard"},
+      {"label": "Sleep", "img": "/icons/pc_sleep.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_0", "action": "keyboard"}
+    ],
+    [
+      {"label": "DP", "img": "/icons/DP.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_1", "action": "keyboard"},
+      {"label": "DP", "img": "/icons/DP.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_4", "action": "keyboard"},
+      {"label": "DP", "img": "/icons/DP.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_7", "action": "keyboard"},
+      {"label": "LV_SYMBOL_VOLUME_MAX", "keypress": "KEY_MEDIA_VOLUME_UP", "action": "keyboard"},
+      {"label": "blank", "keypress": "", "action": "none"}
+    ],
+    [
+      {"label": "HDMI 1", "img": "/icons/hdmi1.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_2", "action": "keyboard"},
+      {"label": "HDMI 1", "img": "/icons/hdmi1.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_5", "action": "keyboard"},
+      {"label": "HDMI 1", "img": "/icons/hdmi1.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_8", "action": "keyboard"},
+      {"label": "LV_SYMBOL_VOLUME_MID", "keypress": "KEY_MEDIA_VOLUME_DOWN", "action": "keyboard"},
+      {"label": "blank", "keypress": "", "action": "none"}
+    ],
+    [
+      {"label": "HDMI 2", "img": "/icons/hdmi2.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_3", "action": "keyboard"},
+      {"label": "HDMI 2", "img": "/icons/hdmi2.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_6", "action": "keyboard"},
+      {"label": "HDMI 2", "img": "/icons/hdmi2.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_9", "action": "keyboard"},
+      {"label": "Audio SW", "img": "/icons/audio_switch.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_F8", "action": "keyboard"},
+      {"label": "blank", "keypress": "", "action": "none"}
+    ]
+  ]
+}

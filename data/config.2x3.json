@@ -1,0 +1,58 @@
+{
+  "auto_dim": 300,
+  "auto_sleep": 900,
+  "active_theme": "Dark",
+  "themes": [
+    {
+      "name": "Classic",
+      "screen_bg": "#000000",
+      "status_bar": "#222222",
+      "button_bg": "#1A1A1A",
+      "button_border": "#333333",
+      "button_pressed": "#333333",
+      "text_main": "#FFFFFF"
+    },
+    {
+      "name": "Cyberpunk",
+      "screen_bg": "#0B0E14",
+      "status_bar": "#1F232D",
+      "button_bg": "#00FFC8",
+      "button_border": "#FF0055",
+      "button_pressed": "#333333",
+      "text_main": "#000000"
+    },
+    {
+      "name": "Dark",
+      "screen_bg": "#000000",
+      "status_bar": "#1A1A1A",
+      "button_bg": "#262626",
+      "button_border": "#3D3D3D",
+      "button_pressed": "#333333",
+      "text_main": "#E0E0E0",
+      "text_status": "#A0A0A0"
+    },
+    {
+      "name": "High Contrast",
+      "screen_bg": "#000000",
+      "status_bar": "#000000",
+      "button_bg": "#000000",
+      "button_border": "#FFFFFF",
+      "button_pressed": "#333333",
+      "text_main": "#FFFFFF",
+      "text_status": "#FFFFFF"
+    },
+    {
+      "name": "Dim",
+      "screen_bg": "#000000",
+      "status_bar": "#0A0000",
+      "button_bg": "#140000",
+      "button_border": "#330000",
+      "button_pressed": "#333333",
+      "text_main": "#880000",
+      "text_status": "#660000"
+    }   
+  ],
+  "menus": [
+    "/menus/2x3/01.json"
+  ]
+}
