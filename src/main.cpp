@@ -67,17 +67,33 @@ void checkDisplayPowerManagement() {
 
 void my_touchpad_read(lv_indev_t * indev, lv_indev_data_t * data) {
     uint16_t x, y;
+    
+    // We MUST call tft.getTouch() every time to detect the finger
     if (tft.getTouch(&x, &y, 600)) {
+        
+        // If the screen is off or dimmed, wake it up first
         if (is_sleeping || is_dimmed) {
-            wakeFromSleep(); // Restores backlight and de-sleeps TFT
-            return;          // Swallow first touch to prevent accidental button press
+            LOG_I("SYS", "Touch detected! Waking screen...");
+            wakeFromSleep(); 
+            
+            // OPTIONAL: Reset the inactivity timer so it doesn't immediately sleep again
+            lv_display_trigger_activity(NULL); 
+            
+            // "Swallow" this touch so we don't accidentally trigger a macro button 
+            // the moment the screen turns on.
+            data->state = LV_INDEV_STATE_RELEASED; 
+            return; 
         }
+
+        // Normal operation when screen is already on
         data->state = LV_INDEV_STATE_PRESSED;
-        data->point.x = x; data->point.y = y;
+        data->point.x = x; 
+        data->point.y = y;
     } else {
         data->state = LV_INDEV_STATE_RELEASED;
     }
 }
+
 
 // --- STANDARD LVGL FLUSH & SETUP ---
 
