@@ -3,39 +3,49 @@
 #include <LittleFS.h>
 
 TFT_eSPI tft = TFT_eSPI();
-BleKeyboard bleKeyboard("MacroPad", "Espressif", 100);
 
+BleKeyboard bleKeyboard("MacroPad", "Espressif", 100);
 uint16_t *buf1 = nullptr, *buf2 = nullptr;
+
+// State tracking (Declared as extern in macropad.h)
 bool is_dimmed = false;
 bool is_sleeping = false;
+
+// Timeouts (Matched to your macropad.h defaults or config)
+// Note: auto_sleep_seconds here is used for "Screen Off" (Modem Sleep)
+// auto_dim_seconds is used for "Lower Brightness"
 
 void setBacklight(uint8_t brightness) { 
     ledcWrite(TFT_BL, brightness); 
 }
 
-// --- PROTECTION & WAKE LOGIC ---
+// --- POWER MANAGEMENT LOGIC ---
 
 void enterModemSleep() {
     if (is_sleeping) return;
-    LOG_I("SYS", "Screen Off (BLE Active)");
+    LOG_I("SYS", "Entering Modem Sleep (Screen Off, BLE ON)");
+    
     is_sleeping = true;
-
-    // 1. Send hardware sleep command to TFT (Stops pixel driving/prevents burn-in)
+    
+    // 1. De-energize pixels to prevent burn-in/persistence
     tft.writecommand(0x10); // ST7789_SLPIN
+    
+    // 2. Kill backlight
     setBacklight(0);
     
-    // Note: CPU and BLE remain ON here so you stay connected to your PC.
+    // CPU stays awake, BLE stays connected.
 }
 
 void wakeFromSleep() {
-    if (!is_sleeping) return;
-    LOG_I("SYS", "Waking Screen...");
+    if (!is_sleeping && !is_dimmed) return;
     
-    // 1. Wake TFT hardware
+    LOG_I("SYS", "Waking display hardware...");
+
+    // 1. Wake the TFT controller
     tft.writecommand(0x11); // ST7789_SLPOUT
-    delay(120);             // Required for driver stabilization
+    delay(120);             // Crucial delay for hardware charge pumps
     
-    // 2. Fade in
+    // 2. Smooth fade back in
     for (int b = 0; b <= 200; b += 10) {
         setBacklight(b);
         delay(2);
@@ -43,18 +53,21 @@ void wakeFromSleep() {
 
     is_sleeping = false;
     is_dimmed = false;
+    
+    // Reset LVGL inactivity timer so it doesn't immediately re-sleep
     lv_display_trigger_activity(NULL); 
 }
 
 void checkDisplayPowerManagement() {
-    uint32_t idle_sec = lv_display_get_inactive_time(NULL) / 1000;
+    uint32_t idle_ms = lv_display_get_inactive_time(NULL);
+    uint32_t idle_sec = idle_ms / 1000;
 
-    // Handle Screen Off (Modem Sleep)
-    if (auto_sleep_seconds > 0 && idle_sec > auto_sleep_seconds) {
-        enterModemSleep();
-    } 
-    // Handle Auto Dim
-    else if (auto_dim_seconds > 0 && idle_sec > auto_dim_seconds) {
+    // 1. Check Screen Off (Modem Sleep)
+    if (auto_sleep_seconds > 0 && idle_sec > (uint32_t)auto_sleep_seconds) {
+        if (!is_sleeping) enterModemSleep();
+    }
+    // 2. Check Auto Dim
+    else if (auto_dim_seconds > 0 && idle_sec > (uint32_t)auto_dim_seconds) {
         if (!is_dimmed && !is_sleeping) {
             setBacklight(20); 
             is_dimmed = true;
@@ -63,29 +76,27 @@ void checkDisplayPowerManagement() {
     }
 }
 
-// --- UPDATED TOUCH READER ---
+// --- UPDATED INPUT HANDLING ---
 
 void my_touchpad_read(lv_indev_t * indev, lv_indev_data_t * data) {
     uint16_t x, y;
     
-    // We MUST call tft.getTouch() every time to detect the finger
+    // Physically poll the touch screen
     if (tft.getTouch(&x, &y, 600)) {
         
-        // If the screen is off or dimmed, wake it up first
+        // If we are in any power-saving state, wake up first
         if (is_sleeping || is_dimmed) {
-            LOG_I("SYS", "Touch detected! Waking screen...");
-            wakeFromSleep(); 
-            
-            // OPTIONAL: Reset the inactivity timer so it doesn't immediately sleep again
+            // Reset the LVGL idle timer immediately
             lv_display_trigger_activity(NULL); 
             
-            // "Swallow" this touch so we don't accidentally trigger a macro button 
-            // the moment the screen turns on.
-            data->state = LV_INDEV_STATE_RELEASED; 
+            wakeFromSleep();
+            
+            // "Swallow" the touch so we don't trigger a button during the wake-up
+            data->state = LV_INDEV_STATE_RELEASED;
             return; 
         }
 
-        // Normal operation when screen is already on
+        // Normal operation
         data->state = LV_INDEV_STATE_PRESSED;
         data->point.x = x; 
         data->point.y = y;
@@ -94,8 +105,7 @@ void my_touchpad_read(lv_indev_t * indev, lv_indev_data_t * data) {
     }
 }
 
-
-// --- STANDARD LVGL FLUSH & SETUP ---
+// --- CORE LVGL & DISPLAY FUNCTIONS ---
 
 void my_disp_flush(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map) {
     uint32_t w = lv_area_get_width(area);
@@ -109,16 +119,24 @@ void my_disp_flush(lv_display_t * disp, const lv_area_t * area, uint8_t * px_map
 
 void setup() {
     Serial.begin(115200);
+    delay(2000); 
+    LOG_I("SYS", "Starting MacroPad...");
+
+    // Hardware Init
     tft.begin();
     tft.initDMA();
     tft.setRotation(TFT_ROTATION);
     ledcAttach(TFT_BL, 5000, 8);
     setBacklight(200);
 
-    if (!LittleFS.begin()) LOG_E("FS", "LittleFS Failed");
+    if (!LittleFS.begin()) {
+        LOG_E("FS", "LittleFS Mount Failed!");
+    }
 
+    // LVGL Init
     lv_init();
     lv_tick_set_cb((lv_tick_get_cb_t)millis);
+
     loadConfig();
     checkCalibration();
     
@@ -138,10 +156,13 @@ void setup() {
     ui_load_page(0);      
 
     bleKeyboard.begin();
+    LOG_I("SYS", "Setup Complete.");
 }
 
 void loop() {
+    // Keep LVGL timers running so it can process the touch wake-up
     lv_timer_handler();
+    
     checkDisplayPowerManagement();
     
     static bool last_c = false;
