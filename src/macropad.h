@@ -4,7 +4,6 @@
 #include <TFT_eSPI.h>
 #include <BleKeyboard.h>
 
-
 #ifndef CONFIG_FILE
 #define CONFIG_FILE "/config.json"
 #endif
@@ -51,10 +50,18 @@ extern BleKeyboard bleKeyboard;
 extern uint32_t theme_screen_bg, theme_status_bar, theme_button_bg, theme_button_border;
 extern uint32_t theme_button_pressed, theme_text_main, theme_text_status;
 extern uint32_t theme_conn, theme_disconn;
+
+// --- UPDATED POWER MANAGEMENT DECLS ---
 extern int auto_dim_seconds; 
 extern int auto_sleep_seconds; 
+extern bool is_dimmed;          // Added state tracking
+extern bool is_sleeping;        // Added state tracking
 
 bool loadConfig();
 void checkCalibration();
 void setBacklight(uint8_t brightness);
-void checkAutoDimAndSleep();
+
+// Added new function prototypes for the loop to call
+void enterModemSleep();
+void wakeFromSleep();
+void checkDisplayPowerManagement();
