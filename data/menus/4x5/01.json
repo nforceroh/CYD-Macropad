@@ -26,7 +26,7 @@
       {"label": "HDMI 2", "img": "/icons/hdmi2.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_3", "action": "keyboard"},
       {"label": "HDMI 2", "img": "/icons/hdmi2.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_6", "action": "keyboard"},
       {"label": "HDMI 2", "img": "/icons/hdmi2.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_NUM_9", "action": "keyboard"},
-      {"label": "Audio SW", "img": "/icons/audio_switch.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_F8", "action": "keyboard"},
+      {"label": "Audio SW", "img": "/icons/audio_switch.bin", "keypress": "KEY_LEFT_CTRL+KEY_LEFT_ALT+KEY_LEFT_SHIFT+KEY_F8", "action": "keyboard"},
       {"label": "blank", "keypress": "", "action": "none"}
     ]
   ]
